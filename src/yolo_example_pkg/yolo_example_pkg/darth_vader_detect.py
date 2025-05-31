@@ -23,7 +23,7 @@ class YoloDetectionNode(Node):
 
         # 使用 yolo model 位置
         model_path = os.path.join(
-            get_package_share_directory("yolo_example_pkg"), "models", "darth_vader.pt"
+            get_package_share_directory("yolo_example_pkg"), "models", "pickachu_detector.pt"
         )
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -33,7 +33,7 @@ class YoloDetectionNode(Node):
 
         # 訂閱影像 Topic
         self.image_sub = self.create_subscription(
-            CompressedImage, "/out/compressed", self.image_callback, 10
+            CompressedImage, "/camera/image/compressed", self.image_callback, 10
         )
 
         # 訂閱 **無壓縮** 深度圖 Topic
@@ -107,7 +107,7 @@ class YoloDetectionNode(Node):
         except Exception as e:
             self.get_logger().error(f"Error during YOLO detection: {e}")
             return
-
+        
         # 繪製 Bounding Box
         processed_image = self.draw_bounding_boxes(cv_image, results)
 
@@ -123,24 +123,24 @@ class YoloDetectionNode(Node):
         cx_center = width // 2
         cy_center = height // 2
         # 繪製橫線
-        cv2.line(image, (0, cy_center), (width, cy_center), (0, 0, 255), 2)
+        # cv2.line(image, (0, cy_center), (width, cy_center), (0, 0, 255), 2)
 
-        # 繪製直線
-        cv2.line(
-            image,
-            (cx_center, cy_center - 10),
-            (cx_center, cy_center + 10),
-            (0, 0, 255),
-            2,
-        )
+        # # 繪製直線
+        # cv2.line(
+        #     image,
+        #     (cx_center, cy_center - 10),
+        #     (cx_center, cy_center + 10),
+        #     (0, 0, 255),
+        #     2,
+        # )
 
-        cv2.line(
-            image,
-            (cx_center, cy_center - 10),
-            (cx_center, cy_center + 10),
-            (0, 0, 255),
-            2,
-        )
+        # cv2.line(
+        #     image,
+        #     (cx_center, cy_center - 10),
+        #     (cx_center, cy_center + 10),
+        #     (0, 0, 255),
+        #     2,
+        # )
 
         # 計算橫線上的 n 個等分點
         segment_length = width // self.x_num_splits
@@ -149,8 +149,8 @@ class YoloDetectionNode(Node):
         ]  # 11 個點表示 10 段區間的端點
 
         # 在每個等分點繪製垂直的短黑線
-        for x, y in points:
-            cv2.line(image, (x, y - 10), (x, y + 10), (0, 0, 0), 2)  # 黑色垂直線
+        # for x, y in points:
+        #     cv2.line(image, (x, y - 10), (x, y + 10), (0, 0, 0), 2)  # 黑色垂直線
 
         return image, points
 
@@ -200,6 +200,7 @@ class YoloDetectionNode(Node):
                     2,
                 )
         self.publish_target_info(found_target, target_distance, delta_x)
+        print('found pikachu!') if found_target else print('Nothing found')
         return image
 
     def get_depth_at(self, x, y):
@@ -269,7 +270,6 @@ def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == "__main__":
     main()

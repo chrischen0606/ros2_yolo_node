@@ -7,9 +7,10 @@ from yolo_pkg.yolo_bounding_box import YoloBoundingBox
 from yolo_pkg.boundingbox_visaulizer import BoundingBoxVisualizer
 from yolo_pkg.camera_geometry import CameraGeometry
 import threading
-from std_msgs.msg import String  # Import String message type
+from std_msgs.msg import String, Float32MultiArray, Bool  # Import String message type
 from yolo_pkg.load_params import LoadParams
-
+from yolo_pkg.aruco_detector import ArucoDetector
+from yolo_pkg.camera_depth import CameraDepth
 
 def _init_ros_node():
     """
@@ -32,6 +33,7 @@ def menu():
     print("2: Draw bounding boxes with screenshot.")
     print("3: 5 fps screenshot.")
     print("4: segmentation.")
+    print("5: Fix living room navigation")
     print("Press Ctrl+C to exit.")
 
     user_input = input("Enter your choice (1/4): ")
@@ -45,7 +47,7 @@ def main():
     load_params = LoadParams("yolo_pkg")
     ros_communicator, executor, ros_thread = _init_ros_node()
     image_processor = ImageProcessor(ros_communicator, load_params)
-    yolo_boundingbox = YoloBoundingBox(image_processor, load_params)
+    yolo_boundingbox = YoloBoundingBox(ros_communicator, image_processor, load_params)
     yolo_depth_extractor = YoloDepthExtractor(
         yolo_boundingbox, image_processor, ros_communicator
     )
@@ -54,6 +56,8 @@ def main():
     )
     camera_geometry = CameraGeometry(yolo_depth_extractor)
 
+    aruco_detector = ArucoDetector(ros_communicator, image_processor, load_params)
+    # camera_depth_extractor = CameraDepth(ros_communicator, image_processor)
     user_input = menu()
 
     try:
@@ -97,12 +101,43 @@ def main():
                     segmentation_status=True,
                     bounding_status=False,
                 )
+            elif user_input == "5":
+                aruco_detector.try_detect_aruco_marker()
+                # print(aruco_detector.info)
+                detections = yolo_boundingbox.get_tags_and_boxes()
+                target_msg = Float32MultiArray()
+                detection_status = False
+                if detections:
+                    detection_status = True
+                    target_msg.data = [float(i) for i in detections[0]['box']]
+                    ros_communicator.publish_data('target_pub', target_msg)
+                ros_communicator.publish_data('detection_status', Bool(data=detection_status))
+                print('Found pikachu!!!') if detection_status else print('No pikachu')
+                offsets_3d = camera_geometry.calculate_offset_from_crosshair_2d()
+                boundingbox_visualizer.draw_bounding_boxes(
+                    draw_crosshair=True,
+                    screenshot=False,
+                    segmentation_status=False,
+                    bounding_status=True,
+                    offsets_3d_json=offsets_3d,
+                )
+
+                # offset_msg = String()
+                # offset_msg.data = offsets_3d
+                # ros_communicator.publish_data("object_offset", offset_msg)
+
             else:
                 print("Invalid input.")
 
             # Example action for yolo_depth_extractor (can be removed if not needed)
-            depth_data = yolo_depth_extractor.get_yolo_object_depth()
-            print(f"Object Depth: {depth_data}")
+            # depth_data = yolo_depth_extractor.get_yolo_object_depth()
+            
+            # target_msg = Float32MultiArray()
+            # if depth_data != []:
+            #     target_msg.data = [float(1), float(depth_data[0]['depth']), float(0)]
+            #     ros_communicator.publish_data('target_pub', target_msg)
+            
+            # print(f"Object Depth: {depth_data}")
 
     except KeyboardInterrupt:
         print("Shutting down gracefully...")

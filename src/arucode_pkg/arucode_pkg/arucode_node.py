@@ -5,7 +5,14 @@ import cv2
 import cv2.aruco as aruco
 import numpy as np
 
-
+marker_length = 0.36  # meter
+half_size = marker_length / 2
+objp = np.array([
+    [-half_size,  half_size, 0],  # top-left
+    [ half_size,  half_size, 0],  # top-right
+    [ half_size, -half_size, 0],  # bottom-right
+    [-half_size, -half_size, 0]   # bottom-left
+], dtype=np.float32)
 class ArucoDetector(Node):
     def __init__(self):
         super().__init__("aruco_detector")
@@ -36,7 +43,7 @@ class ArucoDetector(Node):
         if ids is not None:
             detected_ids = ids.flatten().tolist()
             self.get_logger().info(f"Detected ArUco IDs: {detected_ids}")  # 列印 ID
-
+            self.get_logger().info(f"Detected ArUco IDs: {corners[0]}")     
 
 def main(args=None):
     rclpy.init(args=args)

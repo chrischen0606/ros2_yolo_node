@@ -200,3 +200,4 @@ class ImageProcessor:
     def get_rgb_cv_image(self):
         image = self.ros_communicator.get_latest_data("rgb_compress")
         return self._convert_image_from_ros_to_cv(image, mode="rgb")
+    

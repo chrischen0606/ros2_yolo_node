@@ -1,9 +1,10 @@
 import contextlib
 import io
 
-
+from std_msgs.msg import Bool
 class YoloBoundingBox:
-    def __init__(self, image_processor, load_params):
+    def __init__(self, ros_communicator, image_processor, load_params):
+        self.ros_communicator = ros_communicator
         self.image_processor = image_processor
         self.load_params = load_params
         self._yolo_model = None
@@ -32,7 +33,7 @@ class YoloBoundingBox:
         self.image = self.image_processor.get_rgb_cv_image()
         if self.image is None:
             return []
-
+        print(self.image.shape)
         detection_results = self._yolo_msg_filter(self.image)
 
         detected_objects = []
@@ -56,7 +57,7 @@ class YoloBoundingBox:
                         "box": (x1, y1, x2, y2),
                     }
                 )
-
+        
         return detected_objects
 
     def get_segmentation_data(self, confidence_threshold=None):

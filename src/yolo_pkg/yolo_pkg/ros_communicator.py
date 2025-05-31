@@ -2,7 +2,10 @@ from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage, Imu, Image
 from std_msgs.msg import String, Bool
 from geometry_msgs.msg import PointStamped
-
+from nav_msgs.msg import OccupancyGrid
+from std_msgs.msg import Header, Float32MultiArray, Int32MultiArray
+from tf2_ros import TransformBroadcaster
+from geometry_msgs.msg import TransformStamped, PoseWithCovarianceStamped
 
 class RosCommunicator(Node):
     def __init__(self):
@@ -54,6 +57,30 @@ class RosCommunicator(Node):
                 "topic": "/yolo/detection/status",
                 "msg_type": Bool,
             },
+            "aruco_marker":{
+                "topic": "/aruco",
+                "msg_type": Int32MultiArray,
+            },
+            "occupancy_grid": {
+                "topic": "/map",
+                "msg_type": OccupancyGrid,
+            },
+            "car_pose": {
+                "topic": "/car/pose",
+                "msg_type": PoseWithCovarianceStamped,
+            },
+            "target_pub": {
+                "topic": "/yolo/target_info",
+                "msg_type": Float32MultiArray
+            },
+            "x_multi_depth_pub": {
+                "topic": "/camera/x_multi_depth_values",
+                "msg_type": Float32MultiArray
+            },
+            "aruco_image": {
+                "topic": "/aruco/detection/compressed",
+                "msg_type": CompressedImage,
+            }
         }
 
         # Initialize Subscribers

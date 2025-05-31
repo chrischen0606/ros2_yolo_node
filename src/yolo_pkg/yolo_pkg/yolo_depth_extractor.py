@@ -115,7 +115,7 @@ class YoloDepthExtractor:
                     ),  # Handle potential NaN persistence
                 }
             )
-
+        
         return objects_with_depth
 
     # ... rest of the class (get_depth_camera_center_value) ...
@@ -167,3 +167,4 @@ class YoloDepthExtractor:
             return None  # Return None if depth remains NaN
 
         return {"center": (center_x, center_y), "depth": final_depth}
+    
