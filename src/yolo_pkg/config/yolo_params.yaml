@@ -1,5 +1,5 @@
 yolo:
-  conf: 0.6
+  conf: 0.84
   obb_model: "pickachu_detector.pt"
   seg_model: "yolo11n-seg.pt"
 

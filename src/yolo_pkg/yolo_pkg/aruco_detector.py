@@ -68,7 +68,7 @@ class ArucoDetector:
         self.T_align = np.eye(4)
         self.T_align[0:3, 0:3] = np.linalg.inv(R_align)
         self.reset_internal_state()
-        # self.ros_communicator.create_timer(0.1, self.publish_pose)
+        self.ros_communicator.create_timer(0.1, self.publish_pose)
         self.aruco_msg = Int32MultiArray()
         
     def _create_detector_params(self):
@@ -131,7 +131,6 @@ class ArucoDetector:
         
     def setup_pose_msg(self, pos, q):
         # PoseWithCovarianceStamped
-        print(f"{pos}")
         pose_msg = PoseWithCovarianceStamped()
         pose_msg.header.frame_id = "map"
         pose_msg.pose.pose.position.x = pos[0]
@@ -199,6 +198,8 @@ class ArucoDetector:
 
         if ids is None or len(ids) == 0:
             print("[warning] No ArUco markers detected.")
+            self.aruco_msg.data = [-1]
+            self.ros_communicator.publish_data('aruco_marker', self.aruco_msg)
             return
         
         

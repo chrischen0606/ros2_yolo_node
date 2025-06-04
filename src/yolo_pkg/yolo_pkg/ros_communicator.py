@@ -80,7 +80,27 @@ class RosCommunicator(Node):
             "aruco_image": {
                 "topic": "/aruco/detection/compressed",
                 "msg_type": CompressedImage,
-            }
+            },
+            "edge_image": {
+                "topic": "/edge/detection/compressed",
+                "msg_type": CompressedImage,
+            },
+            "wall_edge":{
+                "topic": "/wall_edge/info",
+                "msg_type": Float32MultiArray
+            },
+            "door_edge":{
+                "topic": "/door_edge/info",
+                "msg_type": Float32MultiArray
+            },
+            "pole_edge":{
+                "topic": "/pole_edge/info",
+                "msg_type": Float32MultiArray
+            },
+            "pole_wall_edge":{
+                "topic": "/pole_wall_edge/info",
+                "msg_type": Float32MultiArray
+            },
         }
 
         # Initialize Subscribers

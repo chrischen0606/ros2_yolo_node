@@ -11,6 +11,7 @@ from std_msgs.msg import String, Float32MultiArray, Bool  # Import String messag
 from yolo_pkg.load_params import LoadParams
 from yolo_pkg.aruco_detector import ArucoDetector
 from yolo_pkg.camera_depth import CameraDepth
+from yolo_pkg.edge_detector import EdgeDetector
 
 def _init_ros_node():
     """
@@ -58,6 +59,7 @@ def main():
 
     aruco_detector = ArucoDetector(ros_communicator, image_processor, load_params)
     # camera_depth_extractor = CameraDepth(ros_communicator, image_processor)
+    edge_detector = EdgeDetector(ros_communicator, image_processor)
     user_input = menu()
 
     try:
@@ -103,6 +105,7 @@ def main():
                 )
             elif user_input == "5":
                 aruco_detector.try_detect_aruco_marker()
+                edge_detector.try_detect_edges()
                 # print(aruco_detector.info)
                 detections = yolo_boundingbox.get_tags_and_boxes()
                 target_msg = Float32MultiArray()
@@ -121,11 +124,6 @@ def main():
                     bounding_status=True,
                     offsets_3d_json=offsets_3d,
                 )
-
-                # offset_msg = String()
-                # offset_msg.data = offsets_3d
-                # ros_communicator.publish_data("object_offset", offset_msg)
-
             else:
                 print("Invalid input.")
 
